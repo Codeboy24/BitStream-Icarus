@@ -24,18 +24,18 @@ dependencies {
 
 testing {
     suites {
-        // Configure the built-in test suite
         val test = named<JvmTestSuite>("test") {
-            // Use JUnit4 test framework
-            useJUnit("4.13.2")
+            // Replaces useJUnit("4.13.2")
+            useJUnitJupiter() 
         }
     }
 }
 
+
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(26)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 javafx {

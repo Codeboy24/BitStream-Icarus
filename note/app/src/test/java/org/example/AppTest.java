@@ -3,8 +3,13 @@
  */
 package org.example;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AppTest {
+    @Test
+    // 2. The method MUST be public, void, and take no arguments
+    public void appHasAGreeting() {
+        assertTrue(true, "Greeting should be true");
+    }
 }
