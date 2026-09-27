@@ -11,11 +11,6 @@ public class TitleBar extends ToolBar {
     private double[] offset = new double[2];
 
     public TitleBar(Stage stage, String titleText, Runnable onPlusClicked) {
-        // "+" Button triggers the action passed from Home.java
-        Button plusButton = new Button("+");
-        plusButton.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
-        plusButton.setOnAction(event -> onPlusClicked.run());
-
         Label titleLabel = new Label(titleText);
         titleLabel.setStyle("-fx-font-weight: bold; -fx-padding: 4 0 0 10;");
 
@@ -26,7 +21,16 @@ public class TitleBar extends ToolBar {
         HBox spacer = new HBox();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        getItems().addAll(plusButton, titleLabel, spacer, closeButton);
+        // Only add the "+" button if a runnable action was provided
+        if (onPlusClicked != null) {
+            Button plusButton = new Button("+");
+            plusButton.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+            plusButton.setOnAction(event -> onPlusClicked.run());
+            getItems().addAll(plusButton, titleLabel, spacer, closeButton);
+        } else {
+            getItems().addAll(titleLabel, spacer, closeButton);
+        }
+
         setStyle("-fx-background-color: transparent; -fx-border-color: #dddddd; -fx-border-width: 0 0 1 0;");
 
         // Drag Logic

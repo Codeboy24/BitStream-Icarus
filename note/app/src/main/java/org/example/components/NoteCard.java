@@ -27,8 +27,8 @@ public class NoteCard extends VBox {
         );
 
         // Hover effects and Click actions
-        setOnMouseEntered(e -> setStyle("-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 0, 2); -fx-cursor: hand;"));
-        setOnMouseExited(e -> setStyle("-fx-background-color: white; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1); -fx-cursor: hand;"));
+        setOnMouseEntered(e -> setStyle("-fx-background-color: #769ff6; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 0, 2); -fx-cursor: hand;"));
+        setOnMouseExited(e -> setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1); -fx-cursor: hand;"));
         
         setOnMouseClicked(e -> NoteEditor.display(note));
     }
