@@ -5,6 +5,7 @@
 package org.example;
 
 import org.example.views.Home;
+import org.example.controllers.StudentHandler;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -12,7 +13,7 @@ public class App extends Application {
 
   @Override
   public void start(Stage stage) {
-
+    StudentHandler.initDB();
     Home home = new Home();
     home.homePage(stage);
   }
