@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 public class Home {
   public static void homePage(Stage stage) {
     Label label = new Label("Hello, JavaFX!");
-    Button mybtn = new Button("test");
+    Button mybtn = new Button("Button");
 
     mybtn.setOnAction(event -> {
       label.setText("Button was clicked!");
@@ -21,8 +21,8 @@ public class Home {
 
     root.getChildren().addAll(label, mybtn);
 
-    Scene scene = new Scene(root, 400, 300);
-    stage.setTitle("My JavaFX App");
+    Scene scene = new Scene(root, 640, 480);
+    stage.setTitle("JavaFX Notes App");
     stage.setScene(scene);
     stage.show();
   }
