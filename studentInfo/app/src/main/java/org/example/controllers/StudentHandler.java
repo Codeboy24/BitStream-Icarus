@@ -4,6 +4,7 @@ package org.example.controllers;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.*;
 
 public class StudentHandler {
   public static void initDB() {
@@ -23,7 +24,7 @@ public class StudentHandler {
 
   }
 
-  public static void addStudent(Connection conn, String name, int year, String program) {
+  public static boolean addStudent(Connection conn, String name, int year, String program) {
     String sql = "INSERT INTO students(name, year, program) VALUES(?, ?, ?)";
 
     try (var pstmt = conn.prepareStatement(sql)) {
@@ -32,9 +33,54 @@ public class StudentHandler {
       pstmt.setString(3, program);
 
       pstmt.executeUpdate();
-      System.out.println("Student added successfully!");
+      return true;
     } catch (SQLException e) {
       System.out.println("Error adding student: " + e.getMessage());
+      return false;
     }
+  }
+
+  public static List<Map<String, Object>> getAllStudents(Connection conn) {
+    String sql = "SELECT id, name, year, program FROM students";
+    List<Map<String, Object>> studentsList = new ArrayList<>();
+
+    try (var stmt = conn.createStatement();
+        var rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        Map<String, Object> student = new HashMap<>();
+        student.put("id", rs.getInt("id"));
+        student.put("name", rs.getString("name"));
+        student.put("year", rs.getInt("year"));
+        student.put("program", rs.getString("program"));
+
+        studentsList.add(student);
+      }
+    } catch (SQLException e) {
+      System.out.println("Error: " + e.getMessage());
+    }
+    return studentsList;
+  }
+
+  public static Map<String, Object> getStudentById(Connection conn, int studentId) {
+    String sql = "SELECT id, name, year, program FROM students WHERE id = ?";
+    Map<String, Object> student = null;
+
+    try (var pstmt = conn.prepareStatement(sql)) {
+      pstmt.setInt(1, studentId);
+
+      try (var rs = pstmt.executeQuery()) {
+        if (rs.next()) {
+          student = new HashMap<>();
+          student.put("id", rs.getInt("id"));
+          student.put("name", rs.getString("name"));
+          student.put("year", rs.getInt("year"));
+          student.put("program", rs.getString("program"));
+        }
+      }
+    } catch (SQLException e) {
+      System.out.println("Error: " + e.getMessage());
+    }
+    return student;
   }
 }
