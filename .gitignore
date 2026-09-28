@@ -25,3 +25,30 @@ build
 
 # Ignore Kotlin plugin data
 .kotlin
+#
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# Ignore Kotlin plugin data
+.kotlin
+*.db
+bitstream.db
+.settings/
+.settings/
+bin/
+build/
+*.class
+*.db
+.settings/
+.classpath
+.project
+bin/
+build/
+*.class
+*.db
+.settings/
+.classpath
+.project

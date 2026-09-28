@@ -14,9 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -25,6 +23,7 @@ public class Home {
     int ScreenWidth = 1080;
     int ScreenHeight = 900;
 
+    StudentTable tableUI = new StudentTable();
     // toolbar item
     Label label = new Label("totalStudent");
     label.getStyleClass().addAll("sub-heading", "text");
@@ -88,6 +87,7 @@ public class Home {
             nameInput.setText("");
             programInput.setText("");
             yearInput.setText("");
+            tableUI.refreshTable();
             addStudentWindow.close();
           }
 
@@ -114,6 +114,7 @@ public class Home {
 
     BorderPane root = new BorderPane();
     root.setTop(toolbarContainer);
+    root.setCenter(tableUI.createTable());
 
     Scene scene = new Scene(root, ScreenWidth, ScreenHeight);
     scene.getStylesheets().add(getClass().getResource("css/Home.css").toExternalForm());
