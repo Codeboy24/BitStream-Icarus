@@ -1,5 +1,10 @@
 package org.example.views;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import org.example.controllers.StudentHandler;
+
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
@@ -37,12 +42,70 @@ public class Home {
     addico.setFitWidth(40);
     addico.setFitHeight(40);
     addico.setPreserveRatio(true);
-
     VBox addBtn = new VBox();
     addBtn.getStyleClass().add("displayCards");
     addBtn.setPrefSize(ScreenWidth * 0.3, ScreenHeight * 0.2);
     addBtn.setAlignment(Pos.CENTER);
     addBtn.getChildren().addAll(addico);
+    addBtn.setOnMouseClicked(event -> {
+      Stage addStudentWindow = new Stage();
+      addStudentWindow.setTitle("Add New Student");
+
+      VBox layout = new VBox(15);
+      layout.setAlignment(Pos.CENTER);
+      layout.setPadding(new Insets(20));
+
+      Label heading = new Label("Enter Student Details");
+
+      TextField nameInput = new TextField();
+      nameInput.setPromptText("Student Name");
+
+      TextField programInput = new TextField();
+      programInput.setPromptText("Student program");
+
+      TextField yearInput = new TextField();
+      yearInput.setPromptText("Student year");
+
+      Button submitBtn = new Button("Create");
+      submitBtn.setOnAction(e -> {
+        String name = nameInput.getText();
+        String program = programInput.getText();
+
+        int year = 0;
+        try {
+          year = Integer.parseInt(yearInput.getText());
+        } catch (NumberFormatException ex) {
+          heading.setText("please enter interger for year");
+          return;
+        }
+
+        Connection conn = StudentHandler.initDB();
+        if (conn != null) {
+          boolean success = StudentHandler.addStudent(conn, name, year, program);
+
+          if (success) {
+            System.out.println("Student added successfully!");
+            nameInput.setText("");
+            programInput.setText("");
+            yearInput.setText("");
+            addStudentWindow.close();
+          }
+
+          try {
+            conn.close();
+          } catch (SQLException ex) {
+            ex.printStackTrace();
+          }
+        }
+      });
+
+      layout.getChildren().addAll(heading, nameInput, programInput, yearInput, submitBtn);
+
+      Scene addScene = new Scene(layout, 400, 300);
+      addStudentWindow.setScene(addScene);
+
+      addStudentWindow.show();
+    });
 
     HBox toolbarContainer = new HBox(5);
     toolbarContainer.getStyleClass().add("toolbarContainer");

@@ -7,21 +7,28 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class StudentHandler {
-  public static void initDB() {
+  public static Connection initDB() {
     var url = "jdbc:sqlite:bitstream.db";
     var sql = "CREATE TABLE IF NOT EXISTS students ("
-        + "	id INTEGER PRIMARY KEY,"
-        + "	name text NOT NULL,"
-        + "	year INTEGER,"
-        + "program text"
+        + " id INTEGER PRIMARY KEY,"
+        + " name text NOT NULL,"
+        + " year INTEGER,"
+        + " program text"
         + ");";
-    try (var conn = DriverManager.getConnection(url); var stmt = conn.createStatement()) {
+
+    Connection conn = null;
+    try {
+      conn = DriverManager.getConnection(url);
+      var stmt = conn.createStatement();
+
       System.out.println("Connection to SQLite has been established.");
       stmt.execute(sql);
+      stmt.close();
     } catch (SQLException e) {
       System.out.println(e.getMessage());
     }
 
+    return conn;
   }
 
   public static boolean addStudent(Connection conn, String name, int year, String program) {
@@ -31,7 +38,6 @@ public class StudentHandler {
       pstmt.setString(1, name);
       pstmt.setInt(2, year);
       pstmt.setString(3, program);
-
       pstmt.executeUpdate();
       return true;
     } catch (SQLException e) {
