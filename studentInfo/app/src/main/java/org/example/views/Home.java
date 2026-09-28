@@ -107,10 +107,21 @@ public class Home {
       addStudentWindow.show();
     });
 
+    VBox editBtn = new VBox();
+    editBtn.getStyleClass().add("displayCards");
+    editBtn.setPrefSize(ScreenWidth * 0.3, ScreenHeight * 0.2);
+    editBtn.setAlignment(Pos.CENTER);
+    Label editLabel = new Label("Edit Student");
+    editLabel.getStyleClass().addAll("sub-heading", "text");
+    editBtn.getChildren().addAll(editLabel);
+    editBtn.setOnMouseClicked(event -> {
+      new ModifyStudent().openModifyWindow(tableUI);
+    });
+
     HBox toolbarContainer = new HBox(5);
     toolbarContainer.getStyleClass().add("toolbarContainer");
     toolbarContainer.setPrefSize(ScreenWidth, ScreenHeight * 0.1);
-    toolbarContainer.getChildren().addAll(studentInfoCard, addBtn);
+    toolbarContainer.getChildren().addAll(studentInfoCard, addBtn, editBtn);
 
     BorderPane root = new BorderPane();
     root.setTop(toolbarContainer);
