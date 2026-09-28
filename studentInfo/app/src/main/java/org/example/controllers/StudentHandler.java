@@ -1,4 +1,3 @@
-
 package org.example.controllers;
 
 import java.sql.Connection;
@@ -10,11 +9,11 @@ public class StudentHandler {
   public static Connection initDB() {
     var url = "jdbc:sqlite:bitstream.db";
     var sql = "CREATE TABLE IF NOT EXISTS students ("
-        + " id INTEGER PRIMARY KEY,"
-        + " name text NOT NULL,"
-        + " year INTEGER,"
-        + " program text"
-        + ");";
+            + " id INTEGER PRIMARY KEY,"
+            + " name text NOT NULL,"
+            + " year INTEGER,"
+            + " program text"
+            + ");";
 
     Connection conn = null;
     try {
@@ -51,7 +50,7 @@ public class StudentHandler {
     List<Map<String, Object>> studentsList = new ArrayList<>();
 
     try (var stmt = conn.createStatement();
-        var rs = stmt.executeQuery(sql)) {
+         var rs = stmt.executeQuery(sql)) {
 
       while (rs.next()) {
         Map<String, Object> student = new HashMap<>();
@@ -88,5 +87,21 @@ public class StudentHandler {
       System.out.println("Error: " + e.getMessage());
     }
     return student;
+  }
+
+  public static boolean updateStudent(Connection conn, int id, String name, int year, String program) {
+    String sql = "UPDATE students SET name = ?, year = ?, program = ? WHERE id = ?";
+
+    try (var pstmt = conn.prepareStatement(sql)) {
+      pstmt.setString(1, name);
+      pstmt.setInt(2, year);
+      pstmt.setString(3, program);
+      pstmt.setInt(4, id);
+      int rowsAffected = pstmt.executeUpdate();
+      return rowsAffected > 0;
+    } catch (SQLException e) {
+      System.out.println("Error updating student: " + e.getMessage());
+      return false;
+    }
   }
 }
