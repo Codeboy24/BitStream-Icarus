@@ -60,7 +60,6 @@ public class StyleHelper {
         );
     }
 
-    // Generates a data stylesheet targeting .text-area and .content to force full transparency across JavaFX themes
     public static String getTransparentTextAreaStylesheet(String hexColor) {
         return "data:text/css," +
             ".text-area { -fx-background-color: transparent; -fx-border-color: transparent; } " +

@@ -1,7 +1,9 @@
 package org.example.views;
 
+import java.util.function.Consumer;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -36,26 +38,30 @@ public class Home {
     public static void homePage(Stage stage) {
         stage.initStyle(StageStyle.TRANSPARENT);
 
-        // Initialize SQLite DB
         DatabaseManager.initializeDatabase();
-
-        // Load existing notes from DB
         masterNoteList.setAll(NoteDAO.getAllNotes());
 
-        // Auto-save changes when notes update
-        masterNoteList.addListener((javafx.collections.ListChangeListener<Note>) c -> {
-            while (c.next()) {
-                if (c.wasAdded()) {
-                    c.getAddedSubList().forEach(NoteDAO::saveOrUpdate);
+        Consumer<Note> deleteHandler = note -> {
+            masterNoteList.remove(note);
+            NoteDAO.delete(note.getId());
+        };
+
+        masterNoteList.addListener((ListChangeListener<Note>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (Note note : change.getAddedSubList()) {
+                        NoteDAO.saveOrUpdate(note);
+                    }
                 }
-                if (c.wasUpdated()) {
-                    Note updatedNote = masterNoteList.get(c.getFrom());
-                    NoteDAO.saveOrUpdate(updatedNote);
+                if (change.wasUpdated()) {
+                    int index = change.getFrom();
+                    if (index >= 0 && index < masterNoteList.size()) {
+                        NoteDAO.saveOrUpdate(masterNoteList.get(index));
+                    }
                 }
             }
         });
 
-        // Search Bar
         TextField searchField = new TextField();
         searchField.setPromptText("Search notes...");
         searchField.setStyle(StyleHelper.SEARCH_FIELD);
@@ -85,18 +91,18 @@ public class Home {
         Runnable renderCards = () -> {
             notesContainer.getChildren().clear();
             for (Note note : sortedNotes) {
-                notesContainer.getChildren().add(new NoteCard(note));
+                notesContainer.getChildren().add(new NoteCard(note, deleteHandler));
             }
         };
 
-        sortedNotes.addListener((javafx.collections.ListChangeListener<Note>) c -> renderCards.run());
+        sortedNotes.addListener((ListChangeListener<Note>) c -> renderCards.run());
 
         VBox headerBox = new VBox(10);
         TitleBar titleBar = new TitleBar(stage, "BitStream Notes", () -> {
             Note newNote = new Note("Untitled Note", "New note description...");
             masterNoteList.add(0, newNote);
             NoteDAO.saveOrUpdate(newNote);
-            NoteEditor.display(newNote);
+            NoteEditor.display(newNote, deleteHandler);
         });
 
         VBox searchPadding = new VBox(searchField);

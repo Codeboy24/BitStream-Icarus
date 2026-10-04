@@ -1,5 +1,6 @@
 package org.example.components;
 
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -8,7 +9,7 @@ import org.example.styles.StyleHelper;
 import org.example.windows.NoteEditor;
 
 public class NoteCard extends VBox {
-    public NoteCard(Note note) {
+    public NoteCard(Note note, Consumer<Note> onDelete) {
         super(5);
         setPadding(new Insets(10, 15, 10, 15));
 
@@ -22,7 +23,6 @@ public class NoteCard extends VBox {
 
         getChildren().addAll(title, preview);
 
-        // Bind color changes dynamically
         Runnable applyTheme = () -> setStyle(StyleHelper.getCardStyle(note.getColor(), false));
         applyTheme.run();
 
@@ -31,6 +31,6 @@ public class NoteCard extends VBox {
         setOnMouseEntered(e -> setStyle(StyleHelper.getCardStyle(note.getColor(), true)));
         setOnMouseExited(e -> setStyle(StyleHelper.getCardStyle(note.getColor(), false)));
 
-        setOnMouseClicked(e -> NoteEditor.display(note));
+        setOnMouseClicked(e -> NoteEditor.display(note, onDelete));
     }
 }
