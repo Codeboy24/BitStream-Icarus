@@ -31,13 +31,6 @@ testing {
     }
 }
 
-
-// Apply a specific Java toolchain to ease working on different environments.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
 javafx {
     // Specify the JavaFX version
     version = "21" 
@@ -45,7 +38,15 @@ javafx {
     // Declare the JavaFX modules you need
     modules("javafx.controls", "javafx.fxml")
 }
+
 application {
     // Define the main class for the application.
     mainClass = "org.example.App"
+}
+
+tasks.named<JavaExec>("run") {
+    jvmArgs(
+        "--enable-native-access=javafx.graphics",
+        "--add-opens=javafx.graphics/com.sun.glass.utils=ALL-UNNAMED"
+    )
 }
