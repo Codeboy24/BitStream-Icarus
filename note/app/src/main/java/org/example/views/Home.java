@@ -1,5 +1,6 @@
 package org.example.views;
 
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -16,27 +17,29 @@ import javafx.stage.StageStyle;
 import org.example.components.NoteCard;
 import org.example.components.TitleBar;
 import org.example.models.Note;
+import org.example.styles.StyleHelper;
+import org.example.windows.NoteEditor;
 
 public class Home {
 
-    private static final ObservableList<Note> masterNoteList = FXCollections.observableArrayList();
+    // Extractor triggers list updates when title, content, or updatedAt timestamps change
+    private static final ObservableList<Note> masterNoteList = FXCollections.observableArrayList(
+        note -> new Observable[] { 
+            note.updatedAtProperty(),
+            note.titleProperty(),
+            note.contentProperty()
+        }
+    );
 
     public static void homePage(Stage stage) {
         stage.initStyle(StageStyle.TRANSPARENT);
 
-        // 1. Search Bar
+        // Search Bar
         TextField searchField = new TextField();
         searchField.setPromptText("Search notes...");
-        searchField.setStyle(
-            "-fx-background-color: white; " +
-            "-fx-background-radius: 8; " +
-            "-fx-border-radius: 8; " +
-            "-fx-border-color: #dddddd; " +
-            "-fx-padding: 8 12; " +
-            "-fx-font-size: 13px;"
-        );
+        searchField.setStyle(StyleHelper.SEARCH_FIELD);
 
-        // 2. Filtered List for Search
+        // Filtered List
         FilteredList<Note> filteredNotes = new FilteredList<>(masterNoteList, p -> true);
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -44,65 +47,54 @@ public class Home {
                 if (newValue == null || newValue.trim().isEmpty()) {
                     return true;
                 }
-                String lowerCaseFilter = newValue.toLowerCase();
+                String lowerCaseFilter = newValue.toLowerCase().trim();
                 boolean matchesTitle = note.getTitle() != null && note.getTitle().toLowerCase().contains(lowerCaseFilter);
                 boolean matchesContent = note.getContent() != null && note.getContent().toLowerCase().contains(lowerCaseFilter);
                 return matchesTitle || matchesContent;
             });
         });
 
-        // 3. Sorted List (Most recently updated notes float to the top)
+        // Sorted List
         SortedList<Note> sortedNotes = new SortedList<>(filteredNotes, (note1, note2) -> {
             if (note1.getUpdatedAt() == null || note2.getUpdatedAt() == null) return 0;
-            return note2.getUpdatedAt().compareTo(note1.getUpdatedAt()); // Descending order
+            return note2.getUpdatedAt().compareTo(note1.getUpdatedAt());
         });
 
-        // 4. UI Layout for Note Cards
+        // UI Container
         VBox notesContainer = new VBox(10);
         notesContainer.setPadding(new Insets(15, 0, 15, 0));
 
         Runnable renderCards = () -> {
             notesContainer.getChildren().clear();
             for (Note note : sortedNotes) {
-                NoteCard card = new NoteCard(note);
-                note.updatedAtProperty().addListener((obs, oldVal, newVal) -> {
-                    masterNoteList.set(masterNoteList.indexOf(note), note); // Refresh position on edit
-                });
-                notesContainer.getChildren().add(card);
+                notesContainer.getChildren().add(new NoteCard(note));
             }
         };
 
+        // Render cards on structural/filter list changes
         sortedNotes.addListener((javafx.collections.ListChangeListener<Note>) c -> renderCards.run());
 
-        // Top Header
+        // Header
         VBox headerBox = new VBox(10);
-        
         TitleBar titleBar = new TitleBar(stage, "BitStream Notes", () -> {
-            Note newNote = new Note("Untitled Note", "This is a short overview of the contents...");
+            Note newNote = new Note("Untitled Note", "New note description...");
             masterNoteList.add(0, newNote);
+            NoteEditor.display(newNote);
         });
 
         VBox searchPadding = new VBox(searchField);
         searchPadding.setPadding(new Insets(10, 15, 0, 15));
-
         headerBox.getChildren().addAll(titleBar, searchPadding);
 
         ScrollPane scrollPane = new ScrollPane(notesContainer);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        scrollPane.getStylesheets().add("data:text/css,.scroll-pane > .viewport { -fx-background-color: transparent; }");
+        scrollPane.getStylesheets().add(StyleHelper.TRANSPARENT_SCROLL_PANE);
 
         BorderPane root = new BorderPane();
         root.setTop(headerBox);
         root.setCenter(scrollPane);
-
-        root.setStyle(
-            "-fx-background-color: #f3f3f3; " +
-            "-fx-background-radius: 12; " + 
-            "-fx-border-radius: 12; " +     
-            "-fx-border-color: #cccccc; " +
-            "-fx-border-width: 1;"
-        );
+        root.setStyle(StyleHelper.ROOT_CONTAINER);
 
         if (masterNoteList.isEmpty()) {
             masterNoteList.add(new Note("Welcome Note", "Welcome to BitStream Notes! Try editing or searching."));
