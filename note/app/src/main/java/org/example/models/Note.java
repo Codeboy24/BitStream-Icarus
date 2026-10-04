@@ -1,32 +1,35 @@
 package org.example.models;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Note {
+    private final String id;
     private final StringProperty title;
     private final StringProperty content;
-    private final StringProperty color; // e.g., #ffffff, #fff3cd, #d1e7dd, #f8d7da, #cff4fc
+    private final StringProperty color;
     private final ObjectProperty<LocalDateTime> createdAt;
     private final ObjectProperty<LocalDateTime> updatedAt;
 
     public Note(String title, String content) {
-        this(title, content, "#ffffff");
+        this(UUID.randomUUID().toString(), title, content, "#ffffff", LocalDateTime.now(), LocalDateTime.now());
     }
 
-    public Note(String title, String content, String color) {
+    public Note(String id, String title, String content, String color, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
         this.title = new SimpleStringProperty(title);
         this.content = new SimpleStringProperty(content);
         this.color = new SimpleStringProperty(color);
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = new SimpleObjectProperty<>(now);
-        this.updatedAt = new SimpleObjectProperty<>(now);
+        this.createdAt = new SimpleObjectProperty<>(createdAt);
+        this.updatedAt = new SimpleObjectProperty<>(updatedAt);
     }
 
-    // Title
+    public String getId() { return id; }
+
     public String getTitle() { return title.get(); }
     public void setTitle(String title) { 
         this.title.set(title);
@@ -34,7 +37,6 @@ public class Note {
     }
     public StringProperty titleProperty() { return title; }
 
-    // Content
     public String getContent() { return content.get(); }
     public void setContent(String content) { 
         this.content.set(content);
@@ -42,7 +44,6 @@ public class Note {
     }
     public StringProperty contentProperty() { return content; }
 
-    // Color Theme
     public String getColor() { return color.get(); }
     public void setColor(String color) { 
         this.color.set(color);
@@ -50,7 +51,6 @@ public class Note {
     }
     public StringProperty colorProperty() { return color; }
 
-    // Timestamps
     public LocalDateTime getCreatedAt() { return createdAt.get(); }
     public ObjectProperty<LocalDateTime> createdAtProperty() { return createdAt; }
 

@@ -16,30 +16,50 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.example.components.NoteCard;
 import org.example.components.TitleBar;
+import org.example.database.DatabaseManager;
+import org.example.database.NoteDAO;
 import org.example.models.Note;
 import org.example.styles.StyleHelper;
 import org.example.windows.NoteEditor;
 
 public class Home {
 
-    // Extractor triggers list updates when title, content, or updatedAt timestamps change
     private static final ObservableList<Note> masterNoteList = FXCollections.observableArrayList(
         note -> new Observable[] { 
             note.updatedAtProperty(),
             note.titleProperty(),
-            note.contentProperty()
+            note.contentProperty(),
+            note.colorProperty()
         }
     );
 
     public static void homePage(Stage stage) {
         stage.initStyle(StageStyle.TRANSPARENT);
 
+        // Initialize SQLite DB
+        DatabaseManager.initializeDatabase();
+
+        // Load existing notes from DB
+        masterNoteList.setAll(NoteDAO.getAllNotes());
+
+        // Auto-save changes when notes update
+        masterNoteList.addListener((javafx.collections.ListChangeListener<Note>) c -> {
+            while (c.next()) {
+                if (c.wasAdded()) {
+                    c.getAddedSubList().forEach(NoteDAO::saveOrUpdate);
+                }
+                if (c.wasUpdated()) {
+                    Note updatedNote = masterNoteList.get(c.getFrom());
+                    NoteDAO.saveOrUpdate(updatedNote);
+                }
+            }
+        });
+
         // Search Bar
         TextField searchField = new TextField();
         searchField.setPromptText("Search notes...");
         searchField.setStyle(StyleHelper.SEARCH_FIELD);
 
-        // Filtered List
         FilteredList<Note> filteredNotes = new FilteredList<>(masterNoteList, p -> true);
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -54,13 +74,11 @@ public class Home {
             });
         });
 
-        // Sorted List
         SortedList<Note> sortedNotes = new SortedList<>(filteredNotes, (note1, note2) -> {
             if (note1.getUpdatedAt() == null || note2.getUpdatedAt() == null) return 0;
             return note2.getUpdatedAt().compareTo(note1.getUpdatedAt());
         });
 
-        // UI Container
         VBox notesContainer = new VBox(10);
         notesContainer.setPadding(new Insets(15, 0, 15, 0));
 
@@ -71,14 +89,13 @@ public class Home {
             }
         };
 
-        // Render cards on structural/filter list changes
         sortedNotes.addListener((javafx.collections.ListChangeListener<Note>) c -> renderCards.run());
 
-        // Header
         VBox headerBox = new VBox(10);
         TitleBar titleBar = new TitleBar(stage, "BitStream Notes", () -> {
             Note newNote = new Note("Untitled Note", "New note description...");
             masterNoteList.add(0, newNote);
+            NoteDAO.saveOrUpdate(newNote);
             NoteEditor.display(newNote);
         });
 
@@ -97,8 +114,9 @@ public class Home {
         root.setStyle(StyleHelper.ROOT_CONTAINER);
 
         if (masterNoteList.isEmpty()) {
-            masterNoteList.add(new Note("Welcome Note", "Welcome to BitStream Notes! Try editing or searching."));
-            masterNoteList.add(new Note("Project Setup", "Gradle, JavaFX, and real-time bindings are fully configured."));
+            Note welcomeNote = new Note("Welcome Note", "Welcome to BitStream Notes! Try editing or searching.");
+            masterNoteList.add(welcomeNote);
+            NoteDAO.saveOrUpdate(welcomeNote);
         }
 
         renderCards.run();

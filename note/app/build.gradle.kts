@@ -18,8 +18,8 @@ repositories {
 }
 
 dependencies {
-    // This dependency is used by the application.
     implementation(libs.guava)
+    implementation("org.xerial:sqlite-jdbc:3.45.1.0")
 }
 
 testing {
